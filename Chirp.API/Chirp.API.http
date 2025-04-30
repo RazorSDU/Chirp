@@ -1,0 +1,6 @@
+@Chirp.API_HostAddress = http://localhost:5048
+
+GET {{Chirp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
