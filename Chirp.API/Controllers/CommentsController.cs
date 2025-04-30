@@ -1,6 +1,6 @@
 ﻿namespace Chirp.API.Controllers
 {
-    public class TweetsController
+    public class CommentsController
     {
     }
 }
