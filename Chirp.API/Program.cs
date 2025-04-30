@@ -1,25 +1,36 @@
+using Chirp.Database;          // ChirpContext
+using Chirp.Database.Seed;     // Seeder
+using Microsoft.EntityFrameworkCore;
+using Chirp.API.Mapping;              // MappingProfile
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// ? Services -------------------------------------------------
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddDbContext<ChirpContext>(o =>
+    o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddAutoMapper(typeof(MappingProfile));   // <- see section 2
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+var app = builder.Build();      // ‹-- build first
 
-// Configure the HTTP request pipeline.
+// ? Pipeline -------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+// ? Migrate + seed ------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ChirpContext>();
+    await db.Database.MigrateAsync();
+    await Seeder.SeedAsync(db);
+}
 
 app.Run();

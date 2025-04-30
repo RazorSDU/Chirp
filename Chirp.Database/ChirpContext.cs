@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chirp.Core.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.Database
 {
-    class ChirpContext
+    public class ChirpContext : DbContext
     {
+        public ChirpContext(DbContextOptions<ChirpContext> opts) : base(opts) { }
+
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Post> Posts => Set<Post>();
+
+        protected override void OnModelCreating(ModelBuilder b)
+            => b.ApplyConfigurationsFromAssembly(typeof(ChirpContext).Assembly);
     }
+
+
 }
