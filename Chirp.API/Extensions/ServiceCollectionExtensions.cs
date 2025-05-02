@@ -27,6 +27,8 @@ namespace Chirp.API.Extensions
             // domain services
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }
