@@ -4,6 +4,11 @@ using Chirp.Database;
 using Chirp.Database.Seed;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Chirp.API.Mapping;
+using Chirp.Core.Domain.Interfaces.Repositories;
+using Chirp.Core.Domain.Interfaces.Services;
+using Chirp.Core.Services; // MappingProfile
+using Chirp.Database.Repositories;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);

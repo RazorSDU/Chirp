@@ -1,23 +1,14 @@
-﻿using Chirp.Core.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Repositories;
 
-namespace Chirp.Database.Repositories;
+namespace Chirp.Tests.Backend.Core.Mocks;
 
-public class UserRepository : IUserRepository
-
+public class MockUserRepository : IUserRepository
 {
-    private readonly ChirpContext _context;
-
-    public UserRepository(ChirpContext context)
-    {
-        _context = context;
-    }
-
+    private readonly List<User> _usertable = new List<User>();
     public async Task SaveUserToDatabaseAsync(User user)
     {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        _usertable.Add(user);
     }
 
     public async Task<User> SaveUpdatedUserToDatabaseAsync(User user)
@@ -25,7 +16,7 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public async Task DeleteUserFromDatabaseAsync(int userId)
+    public async Task DeleteUserFromDatabaseAsync(Guid userId)
     {
         throw new NotImplementedException();
     }
@@ -37,6 +28,6 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetAllUsersFromDatabaseAsync()
     {
-        return await _context.Users.ToListAsync();
+        return _usertable;
     }
 }

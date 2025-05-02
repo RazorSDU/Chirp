@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chirp.Core.Domain.Entities;
 
-namespace Chirp.Core.Domain.Interfaces.Repositories
+namespace Chirp.Core.Domain.Interfaces.Repositories;
+
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-    }
+    Task SaveUserToDatabaseAsync(User user);
+    Task<User> SaveUpdatedUserToDatabaseAsync(User user);
+    Task DeleteUserFromDatabaseAsync(int userId);
+    Task<User> GetUserFromDatabaseByIdAsync(int userId);
+    Task<IEnumerable<User>> GetAllUsersFromDatabaseAsync();
 }
