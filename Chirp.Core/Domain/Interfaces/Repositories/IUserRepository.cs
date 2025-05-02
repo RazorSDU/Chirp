@@ -6,7 +6,7 @@ public interface IUserRepository
 {
     Task SaveUserToDatabaseAsync(User user);
     Task<User> SaveUpdatedUserToDatabaseAsync(User user);
-    Task DeleteUserFromDatabaseAsync(int userId);
+    Task DeleteUserFromDatabaseAsync(Guid userId);
     Task<User> GetUserFromDatabaseByIdAsync(int userId);
     Task<IEnumerable<User>> GetAllUsersFromDatabaseAsync();
 }

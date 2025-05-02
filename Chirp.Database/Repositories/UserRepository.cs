@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public async Task DeleteUserFromDatabaseAsync(int userId)
+    public async Task DeleteUserFromDatabaseAsync(Guid userId)
     {
         throw new NotImplementedException();
     }
