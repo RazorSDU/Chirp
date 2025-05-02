@@ -2,13 +2,15 @@
 using Chirp.API.DTOs.Comment;
 using Chirp.Core.Domain.Entities;
 
-namespace Chirp.API.Mapping;
-
-public sealed class CommentProfile : Profile
+namespace Chirp.API.Mapping
 {
-    public CommentProfile()
+    public sealed class CommentProfile : Profile
     {
-        CreateMap<Post, CommentDto>()
-            .ForMember(d => d.Username, o => o.MapFrom(s => s.User.Username));
+        public CommentProfile()
+        {
+            CreateMap<Post, CommentDto>()
+                .ForMember(d => d.Username, o => o.MapFrom(s => s.User.Username));
+        }
     }
 }
+

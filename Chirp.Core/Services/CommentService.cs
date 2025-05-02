@@ -7,22 +7,25 @@ using System.Threading.Tasks;
 using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Repositories;
 
-namespace Chirp.Core.Services;
-
-public sealed class CommentService : ICommentService
+namespace Chirp.Core.Services
 {
-    private readonly IPostRepository _posts;
-    private readonly IPostService _postService;   // reuse business validation
-
-    public CommentService(IPostRepository posts, IPostService postService)
+    public sealed class CommentService : ICommentService
     {
-        _posts = posts;
-        _postService = postService;
+        private readonly IPostRepository _posts;
+        private readonly IPostService _postService;   // reuse business validation
+
+        public CommentService(IPostRepository posts, IPostService postService)
+        {
+            _posts = posts;
+            _postService = postService;
+        }
+
+        public Task<IEnumerable<Post>> GetForPostAsync(Guid postId, int page, int pageSize)
+            => _posts.GetRepliesPageAsync(postId, page, pageSize);
+
+        public Task<Post> AddAsync(Guid postId, Guid userId, string body)
+            => _postService.CreateAsync(userId, body, postId);
     }
-
-    public Task<IEnumerable<Post>> GetForPostAsync(Guid postId, int page, int pageSize)
-        => _posts.GetRepliesPageAsync(postId, page, pageSize);
-
-    public Task<Post> AddAsync(Guid postId, Guid userId, string body)
-        => _postService.CreateAsync(userId, body, postId);
 }
+
+

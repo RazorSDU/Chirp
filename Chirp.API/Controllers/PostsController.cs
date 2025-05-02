@@ -2,83 +2,83 @@
 using Chirp.API.DTOs.Post;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chirp.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public sealed class PostsController : ControllerBase
+namespace Chirp.API.Controllers
 {
-    private readonly IPostService _posts;
-    private readonly ICommentService _comments;
-
-    public PostsController(IPostService posts, ICommentService comments)
+    [ApiController]
+    [Route("api/[controller]")]
+    public sealed class PostsController : ControllerBase
     {
-        _posts = posts;
-        _comments = comments;
-    }
+        private readonly IPostService _posts;
+        private readonly ICommentService _comments;
 
-    /* ────────────────────────────────────────────────────────
-       1. Feed – most‑recent “root” posts (no parent)          */
+        public PostsController(IPostService posts, ICommentService comments)
+        {
+            _posts = posts;
+            _comments = comments;
+        }
 
-    // GET api/posts/feed?page=1&pageSize=20
-    [HttpGet("feed")]
-    public async Task<IActionResult> GetAllFeed(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
-    {
-        var posts = await _posts.GetAllAsync(page, pageSize);
+        /* ────────────────────────────────────────────────────────
+           1. Feed – most‑recent “root” posts (no parent)          */
 
-        var dto = posts.Select(p => new PostDto(
-            p.Id,
-            p.User?.Username ?? string.Empty,
-            p.Body,
-            p.CreatedAt,
-            p.ParentPostId,
-            p.Replies?.Count ?? 0));
+        // GET api/posts/feed?page=1&pageSize=20
+        [HttpGet("feed")]
+        public async Task<IActionResult> GetAllFeed(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            var posts = await _posts.GetAllAsync(page, pageSize);
 
-        return Ok(dto);
-    }
+            var dto = posts.Select(p => new PostDto(
+                p.Id,
+                p.User?.Username ?? string.Empty,
+                p.Body,
+                p.CreatedAt,
+                p.ParentPostId,
+                p.Replies?.Count ?? 0));
 
-    /* ────────────────────────────────────────────────────────
-       2. Comments for a post (one layer)                      */
+            return Ok(dto);
+        }
 
-    // GET api/posts/{id}/comments?page=1&pageSize=50
-    [HttpGet("{id:guid}/comments")]
-    public async Task<IActionResult> GetPostCommentsById(
-        Guid id,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
-    {
-        var comments = await _comments.GetForPostAsync(id, page, pageSize);
+        /* ────────────────────────────────────────────────────────
+           2. Comments for a post (one layer)                      */
 
-        var dto = comments.Select(c => new PostDto(
-            c.Id,
-            c.User?.Username ?? string.Empty,
-            c.Body,
-            c.CreatedAt,
-            c.ParentPostId,
-            c.Replies?.Count ?? 0));       
+        // GET api/posts/{id}/comments?page=1&pageSize=50
+        [HttpGet("{id:guid}/comments")]
+        public async Task<IActionResult> GetPostCommentsById(
+            Guid id,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50)
+        {
+            var comments = await _comments.GetForPostAsync(id, page, pageSize);
 
-        return Ok(dto);
-    }
+            var dto = comments.Select(c => new PostDto(
+                c.Id,
+                c.User?.Username ?? string.Empty,
+                c.Body,
+                c.CreatedAt,
+                c.ParentPostId,
+                c.Replies?.Count ?? 0));
 
-    /* ────────────────────────────────────────────────────────
-       3. Thread – the post + its immediate comments           */
+            return Ok(dto);
+        }
 
-    // GET api/posts/{id}/thread?page=1&pageSize=50
-    [HttpGet("{id:guid}/thread")]
-    public async Task<IActionResult> GetPostAndCommentsById(
-        Guid id,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
-    {
-        var post = await _posts.GetByIdAsync(id);
-        if (post is null) return NotFound();
+        /* ────────────────────────────────────────────────────────
+           3. Thread – the post + its immediate comments           */
 
-        var comments = await _comments.GetForPostAsync(id, page, pageSize);
-        var replyCount = comments.Count();          // ←  direct replies we just loaded
+        // GET api/posts/{id}/thread?page=1&pageSize=50
+        [HttpGet("{id:guid}/thread")]
+        public async Task<IActionResult> GetPostAndCommentsById(
+            Guid id,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50)
+        {
+            var post = await _posts.GetByIdAsync(id);
+            if (post is null) return NotFound();
 
-        var dto = new List<PostDto>
+            var comments = await _comments.GetForPostAsync(id, page, pageSize);
+            var replyCount = comments.Count();          // ←  direct replies we just loaded
+
+            var dto = new List<PostDto>
         {
             new PostDto(
                 post.Id,
@@ -89,37 +89,40 @@ public sealed class PostsController : ControllerBase
                 replyCount)                         // ← use accurate count
         };
 
-        dto.AddRange(comments.Select(c => new PostDto(
-            c.Id,
-            c.User?.Username ?? string.Empty,
-            c.Body,
-            c.CreatedAt,
-            c.ParentPostId,
-            c.Replies?.Count ?? 0))); 
+            dto.AddRange(comments.Select(c => new PostDto(
+                c.Id,
+                c.User?.Username ?? string.Empty,
+                c.Body,
+                c.CreatedAt,
+                c.ParentPostId,
+                c.Replies?.Count ?? 0)));
 
-        return Ok(dto);
-    }
+            return Ok(dto);
+        }
 
-    /* ────────────────────────────────────────────────────────
-       4. Posts by a user                                      */
+        /* ────────────────────────────────────────────────────────
+           4. Posts by a user                                      */
 
-    // GET api/posts/user/{username}?page=1&pageSize=20
-    [HttpGet("user/{username}")]
-    public async Task<IActionResult> GetPostsByUser(
-        string username,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
-    {
-        var posts = await _posts.GetByUserAsync(username, page, pageSize);
+        // GET api/posts/user/{username}?page=1&pageSize=20
+        [HttpGet("user/{username}")]
+        public async Task<IActionResult> GetPostsByUser(
+            string username,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            var posts = await _posts.GetByUserAsync(username, page, pageSize);
 
-        var dto = posts.Select(p => new PostDto(
-            p.Id,
-            p.User?.Username ?? string.Empty,
-            p.Body,
-            p.CreatedAt,
-            p.ParentPostId,
-            p.Replies?.Count ?? 0));
+            var dto = posts.Select(p => new PostDto(
+                p.Id,
+                p.User?.Username ?? string.Empty,
+                p.Body,
+                p.CreatedAt,
+                p.ParentPostId,
+                p.Replies?.Count ?? 0));
 
-        return Ok(dto);
+            return Ok(dto);
+        }
     }
 }
+
+

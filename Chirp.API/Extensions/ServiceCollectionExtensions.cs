@@ -7,27 +7,29 @@ using Chirp.Database;
 using Chirp.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chirp.API.Extensions;
-
-public static class ServiceCollectionExtensions
+namespace Chirp.API.Extensions
 {
-    public static IServiceCollection AddChirpApplication(this IServiceCollection services, IConfiguration config)
+    public static class ServiceCollectionExtensions
     {
-        // EF Core
-        services.AddDbContext<ChirpContext>(opts =>
-            opts.UseSqlServer(config.GetConnectionString("Default")));
+        public static IServiceCollection AddChirpApplication(this IServiceCollection services, IConfiguration config)
+        {
+            // EF Core
+            services.AddDbContext<ChirpContext>(opts =>
+                opts.UseSqlServer(config.GetConnectionString("Default")));
 
-        // AutoMapper – scan the assembly that contains PostProfile
-        services.AddAutoMapper(typeof(PostProfile).Assembly);
+            // AutoMapper – scan the assembly that contains PostProfile
+            services.AddAutoMapper(typeof(PostProfile).Assembly);
 
-        // repositories
-        services.AddScoped<IUserRepository, UserRepository>();   //  ←  keep this
-        services.AddScoped<IPostRepository, PostRepository>();
+            // repositories
+            services.AddScoped<IUserRepository, UserRepository>();   //  ←  keep this
+            services.AddScoped<IPostRepository, PostRepository>();
 
-        // domain services
-        services.AddScoped<IPostService, PostService>();
-        services.AddScoped<ICommentService, CommentService>();
+            // domain services
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ICommentService, CommentService>();
 
-        return services;
+            return services;
+        }
     }
 }
+

@@ -1,38 +1,40 @@
 ﻿using System.Net;
 using System.Text.Json;
 
-namespace Chirp.API.Filters;
-
-public sealed class ExceptionMiddleware
+namespace Chirp.API.Filters
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionMiddleware> _logger;
-    private readonly IHostEnvironment _env;
-
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
+    public sealed class ExceptionMiddleware
     {
-        _next = next;
-        _logger = logger;
-        _env = env;
-    }
+        private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
+        private readonly IHostEnvironment _env;
 
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
         {
-            await _next(context);
+            _next = next;
+            _logger = logger;
+            _env = env;
         }
-        catch (Exception ex)
+
+        public async Task InvokeAsync(HttpContext context)
         {
-            _logger.LogError(ex, "Unhandled exception");
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception");
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "application/json";
 
-            object payload = _env.IsDevelopment()
-                ? new { title = ex.Message, stackTrace = ex.StackTrace }
-                : new { title = "An unexpected error occurred." };
+                object payload = _env.IsDevelopment()
+                    ? new { title = ex.Message, stackTrace = ex.StackTrace }
+                    : new { title = "An unexpected error occurred." };
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+            }
         }
     }
 }
+
