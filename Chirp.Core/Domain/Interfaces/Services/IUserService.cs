@@ -1,3 +1,5 @@
+using Chirp.Core.DTOs;
+
 namespace Chirp.Core.Domain.Interfaces.Services;
 
 public interface IUserService

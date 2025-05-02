@@ -1,5 +1,8 @@
 using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Services;
+using Chirp.Core.DTOs;
+using Chirp.Core.Domain.Interfaces.Repositories;
+
 namespace Chirp.Core.Services;
 
 public class UserService : IUserService

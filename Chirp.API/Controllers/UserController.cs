@@ -1,3 +1,5 @@
+using Chirp.Core.Domain.Interfaces.Services;
+using Chirp.Core.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.API.Controllers
