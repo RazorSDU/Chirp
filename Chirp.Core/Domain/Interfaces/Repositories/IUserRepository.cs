@@ -9,4 +9,6 @@ public interface IUserRepository
     Task DeleteUserFromDatabaseAsync(Guid userId);
     Task<User> GetUserFromDatabaseByIdAsync(int userId);
     Task<IEnumerable<User>> GetAllUsersFromDatabaseAsync();
+    Task<bool> ExistsAsync(Guid id);
+
 }

@@ -30,4 +30,9 @@ public class MockUserRepository : IUserRepository
     {
         return _usertable;
     }
+
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }
