@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chirp.Core.Domain.Interfaces.Repositories
 {
-    interface IUserRepository
+    public interface IUserRepository
     {
     }
 }

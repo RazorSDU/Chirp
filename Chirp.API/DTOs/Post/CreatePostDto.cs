@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chirp.Core.Domain.DTOs.Post
+namespace Chirp.API.DTOs.Post
 {
     class CreatePostDto
     {

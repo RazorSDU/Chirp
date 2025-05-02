@@ -4,9 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chirp.Core.Domain.DTOs.Comment
+namespace Chirp.API.DTOs.Comment
 {
-    class CommentDto
-    {
-    }
+    public record CommentDto
+    (
+    Guid Id,
+    string Username,
+    string Body,
+    DateTime CreatedAt,
+    Guid ParentPostId
+    );
 }

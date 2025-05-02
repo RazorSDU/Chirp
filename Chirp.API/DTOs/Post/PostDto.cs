@@ -4,9 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chirp.Core.Domain.DTOs.Post
+namespace Chirp.API.DTOs.Post
 {
-    class PostDto
-    {
-    }
+    public record PostDto
+    (
+    Guid Id,
+    string Username,
+    string Body,
+    DateTime CreatedAt,
+    Guid? ParentPostId,
+    int ReplyCount
+    );
 }

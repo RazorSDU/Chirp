@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Chirp.Database.Migrations
 {
     [DbContext(typeof(ChirpContext))]
-    [Migration("20250430112406_InitialCreate")]
+    [Migration("20250502092112_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -52,6 +52,9 @@ namespace Chirp.Database.Migrations
                     b.Property<Guid?>("ParentPostId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("parent_post_id");
+
+                    b.Property<int>("ReplyCount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")

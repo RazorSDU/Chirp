@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using Chirp.Core.Domain.Entities;
+using Chirp.Core.Domain.Interfaces.Repositories;
+using Chirp.Core.Domain.Interfaces.Services;
 
-namespace Chirp.Core.Services
+namespace Chirp.Core.Services;
+
+public sealed class AuthService : IAuthService
 {
-    class AuthService
-    {
-    }
 }

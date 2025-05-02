@@ -12,6 +12,7 @@ namespace Chirp.Core.Domain.Entities
         public Guid UserId { get; set; }
         public Guid? ParentPostId { get; set; }         // reply thread
         public string Body { get; set; } = "";
+        public int ReplyCount { get; set; } = 0; // number of replies to this post
         public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

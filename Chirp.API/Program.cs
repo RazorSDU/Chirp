@@ -1,31 +1,51 @@
-using Chirp.Database;          // ChirpContext
-using Chirp.Database.Seed;     // Seeder
+﻿using Chirp.API.Extensions;
+using Chirp.API.Filters;
+using Chirp.Database;
+using Chirp.Database.Seed;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Chirp.API.Mapping;              // MappingProfile
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ? Services -------------------------------------------------
-builder.Services.AddControllers();
-builder.Services.AddDbContext<ChirpContext>(o =>
-    o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddAutoMapper(typeof(MappingProfile));   // <- see section 2
+// ── services ──────────────────────────────────────────────
+// controllers + global validation filter
+builder.Services.AddControllers(o => o.Filters.Add<ValidationFilter>());
+
+// domain + infrastructure + AutoMapper profile assembly (scans whole assembly)
+builder.Services.AddChirpApplication(builder.Configuration);
+
+// swagger / open‑api
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();      // �-- build first
+// rate‑limiting (ASP.NET Core 8)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("fixed", o =>
+    {
+        o.Window = TimeSpan.FromMinutes(1);
+        o.PermitLimit = 100;                 // 100 req/min per IP
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 50;
+    });
+});
 
-// ? Pipeline -------------------------------------------------
+var app = builder.Build();
+
+// ── middleware pipeline ───────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();     // global error handler
+app.UseRateLimiter();                         // fixed window limiter
 app.UseAuthorization();
 app.MapControllers();
 
-// ? Migrate + seed ------------------------------------------
+// ── database migrate + seed ───────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ChirpContext>();

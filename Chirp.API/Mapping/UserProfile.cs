@@ -1,6 +1,12 @@
-﻿namespace Chirp.API.Mapping
+﻿using AutoMapper;
+using Chirp.Core.Domain.Entities;
+
+namespace Chirp.API.Mapping;
+
+public sealed class UserProfile : Profile
 {
-    public class UserProfile
+    public UserProfile()
     {
+
     }
 }

@@ -50,6 +50,9 @@ namespace Chirp.Database.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("parent_post_id");
 
+                    b.Property<int>("ReplyCount")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updated_at");

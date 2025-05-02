@@ -33,6 +33,7 @@ namespace Chirp.Database.Migrations
                     user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     parent_post_id = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     body = table.Column<string>(type: "nvarchar(280)", maxLength: 280, nullable: false),
+                    ReplyCount = table.Column<int>(type: "int", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
