@@ -20,6 +20,10 @@ namespace Chirp.Core.Domain.Entities
         public User? User { get; set; }
         public Post? ParentPost { get; set; }
         public ICollection<Post> Replies { get; init; } = new List<Post>();
+
+        // ── new image FK ────────────────────────────────────────
+        public Guid? ImageId { get; set; }
+        public Image? Image { get; set; }
     }
 
 }

@@ -9,13 +9,39 @@ namespace Chirp.API.Controllers
     [Route("api/[controller]")]
     public sealed class CommentsController : ControllerBase
     {
-        private readonly ICommentService _comments;
         private readonly IPostService _posts;
+        private readonly ICommentService _comments;
+        private readonly IImageService _images;
 
-        public CommentsController(ICommentService comments, IPostService posts)
+        public CommentsController(
+            IPostService posts,
+            ICommentService comments,
+            IImageService images)
         {
-            _comments = comments;
             _posts = posts;
+            _comments = comments;
+            _images = images;
+        }
+
+        // ────────────────────────────────────────────────────────
+        // 0. Get a post’s image blob directly so Swagger can render it
+        // ────────────────────────────────────────────────────────
+        [HttpGet("{id:guid}/image")]
+        [Produces("image/png", "image/jpeg")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPostImage(Guid id)
+        {
+            var post = await _posts.GetByIdAsync(id);
+            if (post == null || post.ImageId == null)
+                return NotFound();
+
+            var img = await _images.GetByIdAsync(post.ImageId.Value);
+            if (img == null)
+                return NotFound();
+
+            // returns binary with correct content‐type; Swagger UI will show the image inline
+            return File(img.Data, img.ContentType!);
         }
 
         /* ────────────────────────────────────────────────────────
@@ -38,7 +64,14 @@ namespace Chirp.API.Controllers
                 comment.Body,
                 comment.CreatedAt,
                 comment.ParentPostId,
-                comment.Replies?.Count ?? 0);
+                comment.Replies?.Count ?? 0,
+                comment.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = comment.Id },
+                      protocol: Request.Scheme)
+                : null);
 
             return Ok(result);
         }

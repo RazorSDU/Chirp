@@ -183,6 +183,22 @@ namespace Chirp.Core.Services
             // validation of page/pageSize omitted for brevity
             return _posts.SearchAsync(criteria, page, pageSize);
         }
+
+        /* ───────────────────────────────────────────────────
+           9. Update - Assign an image to a post                     
+        */
+
+        public async Task<Post> AssignImageAsync(Guid postId, Guid imageId)
+        {
+            var post = await _posts.GetByIdAsync(postId);
+            if (post is null) throw new InvalidOperationException("Post not found");
+
+            // you might optionally validate image exists via IImageRepository here
+
+            post.ImageId = imageId;
+            await _posts.SaveChangesAsync();
+            return post;
+        }
     }
 }
 

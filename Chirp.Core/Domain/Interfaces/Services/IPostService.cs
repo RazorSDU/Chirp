@@ -30,6 +30,8 @@ namespace Chirp.Core.Domain.Interfaces.Services
             PostSearchCriteria criteria,
             int page,
             int pageSize);
+
+        Task<Post> AssignImageAsync(Guid postId, Guid imageId);
     }
 }
 

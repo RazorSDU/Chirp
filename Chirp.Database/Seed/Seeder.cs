@@ -8,26 +8,48 @@ public static class Seeder
 {
     public static async Task SeedAsync(ChirpContext ctx)
     {
-        // ── Nuke & pave ─────────────────────────────────────────
         await ctx.Database.BeginTransactionAsync();
         try
         {
-            // Delete order: children → parents
+            // ── 1) Wipe existing data ───────────────────────────
+            // Must delete posts first (FK→images), then images, then users
             await ctx.Posts.ExecuteDeleteAsync();
+            await ctx.Images.ExecuteDeleteAsync();
             await ctx.Users.ExecuteDeleteAsync();
 
-            // ── Users ────────────────────────────────────────────
+            // ── 2) Seed users ───────────────────────────────────
             var users = new[]
             {
-                CreateUser("alice", "pass123", Role.User),
-                CreateUser("bob",   "hunter2", Role.Moderator)
-            };
+                    CreateUser("alice", "pass123", Role.User),
+                    CreateUser("bob",   "hunter2", Role.Moderator)
+                };
             await ctx.Users.AddRangeAsync(users);
 
-            // ── Posts + replies ─────────────────────────────────
+            // ── 3) Seed placeholder image ───────────────────────
+            // Make sure "Seed/Images/placeholder.png" is copied to output dir
+            var imagePath = Path.Combine("Images", "placeholder.png");
+            var placeholderImage = new Image
+            {
+                Id = Guid.NewGuid(),
+                Data = ImageConverter.ConvertToBytes(imagePath),
+                Filename = "placeholder.png",
+                ContentType = "image/png",
+                UploadedAt = DateTime.UtcNow
+            };
+            await ctx.Images.AddAsync(placeholderImage);
+
+            // ── 4) Seed posts & wire up some to the placeholder ──
             var posts = CreatePosts(users);
+            // assign the placeholder to ~25% of posts
+            var rnd = new Random(1234);
+            foreach (var (post, idx) in posts.Select((p, i) => (p, i)))
+            {
+                if (idx % 4 == 0)
+                    post.ImageId = placeholderImage.Id;
+            }
             await ctx.Posts.AddRangeAsync(posts);
 
+            // ── 5) Commit all ───────────────────────────────────
             await ctx.SaveChangesAsync();
             await ctx.Database.CommitTransactionAsync();
         }

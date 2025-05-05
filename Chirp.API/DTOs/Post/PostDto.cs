@@ -13,6 +13,7 @@ namespace Chirp.API.DTOs.Post
     string Body,
     DateTime CreatedAt,
     Guid? ParentPostId,
-    int ReplyCount
+    int ReplyCount,
+    string? ImageUrl
     );
 }

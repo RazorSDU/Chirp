@@ -36,6 +36,15 @@ namespace Chirp.Database.Configurations
             e.Property(p => p.UpdatedAt).HasColumnName("updated_at");
             e.Property(p => p.DeletedAt).HasColumnName("deleted_at");
 
+            // ── image FK ─────────────────────────────────────────
+            e.Property(p => p.ImageId)
+                .HasColumnName("image_id");
+            
+            e.HasOne(p => p.Image)
+                .WithMany(i => i.Posts)
+                .HasForeignKey(p => p.ImageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // ── relationships ─────────────────────────────────────────────
             e.HasOne(p => p.User)
                 .WithMany(u => u.Posts)

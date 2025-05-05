@@ -2,6 +2,7 @@
 using Chirp.API.DTOs.Post;
 using Microsoft.AspNetCore.Mvc;
 using Chirp.Core.Domain.Specifications;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Chirp.API.Controllers
 {
@@ -11,11 +12,37 @@ namespace Chirp.API.Controllers
     {
         private readonly IPostService _posts;
         private readonly ICommentService _comments;
+        private readonly IImageService _images;
 
-        public PostsController(IPostService posts, ICommentService comments)
+        public PostsController(
+            IPostService posts,
+            ICommentService comments,
+            IImageService images)
         {
             _posts = posts;
             _comments = comments;
+            _images = images;
+        }
+
+        // ────────────────────────────────────────────────────────
+        // 0. Get a post’s image blob directly so Swagger can render it
+        // ────────────────────────────────────────────────────────
+        [HttpGet("{id:guid}/image")]
+        [Produces("image/png", "image/jpeg")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPostImage(Guid id)
+        {
+            var post = await _posts.GetByIdAsync(id);
+            if (post == null || post.ImageId == null)
+                return NotFound();
+
+            var img = await _images.GetByIdAsync(post.ImageId.Value);
+            if (img == null)
+                return NotFound();
+
+            // returns binary with correct content‐type; Swagger UI will show the image inline
+            return File(img.Data, img.ContentType!);
         }
 
         /* ────────────────────────────────────────────────────────
@@ -29,15 +56,22 @@ namespace Chirp.API.Controllers
         {
             var posts = await _posts.GetAllAsync(page, pageSize);
 
-            var dto = posts.Select(p => new PostDto(
+            var dtos = posts.Select(p => new PostDto(
                 p.Id,
                 p.User?.Username ?? string.Empty,
                 p.Body,
                 p.CreatedAt,
                 p.ParentPostId,
-                p.Replies?.Count ?? 0));
+                p.Replies?.Count ?? 0,
+                p.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = p.Id },
+                      protocol: Request.Scheme)
+                : null));
 
-            return Ok(dto);
+            return Ok(dtos);
         }
 
         /* ────────────────────────────────────────────────────────
@@ -52,15 +86,22 @@ namespace Chirp.API.Controllers
         {
             var comments = await _comments.GetForPostAsync(id, page, pageSize);
 
-            var dto = comments.Select(c => new PostDto(
-                c.Id,
-                c.User?.Username ?? string.Empty,
-                c.Body,
-                c.CreatedAt,
-                c.ParentPostId,
-                c.Replies?.Count ?? 0));
+            var dtos = comments.Select(p => new PostDto(
+                p.Id,
+                p.User?.Username ?? string.Empty,
+                p.Body,
+                p.CreatedAt,
+                p.ParentPostId,
+                p.Replies?.Count ?? 0,
+                p.ImageId != null
+                    ? Url.Action(
+                          action: nameof(GetPostImage),
+                          controller: "Posts",
+                          values: new { id = p.Id },
+                          protocol: Request.Scheme)
+                    : null));
 
-            return Ok(dto);
+            return Ok(dtos);
         }
 
         /* ────────────────────────────────────────────────────────
@@ -87,7 +128,14 @@ namespace Chirp.API.Controllers
                 post.Body,
                 post.CreatedAt,
                 post.ParentPostId,
-                replyCount)                         // ← use accurate count
+                replyCount,
+                post.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = post.Id },
+                      protocol: Request.Scheme)
+                : null)
         };
 
             dto.AddRange(comments.Select(c => new PostDto(
@@ -96,7 +144,14 @@ namespace Chirp.API.Controllers
                 c.Body,
                 c.CreatedAt,
                 c.ParentPostId,
-                c.Replies?.Count ?? 0)));
+                c.Replies?.Count ?? 0,
+                c.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = c.Id },
+                      protocol: Request.Scheme)
+                : null)));
 
             return Ok(dto);
         }
@@ -119,7 +174,14 @@ namespace Chirp.API.Controllers
                 p.Body,
                 p.CreatedAt,
                 p.ParentPostId,
-                p.Replies?.Count ?? 0));
+                p.Replies?.Count ?? 0,
+                p.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = p.Id },
+                      protocol: Request.Scheme)
+                : null));
 
             return Ok(dto);
         }
@@ -140,7 +202,14 @@ namespace Chirp.API.Controllers
                 post.Body,
                 post.CreatedAt,
                 post.ParentPostId,
-                post.Replies?.Count ?? 0);
+                post.Replies?.Count ?? 0,
+                post.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = post.Id },
+                      protocol: Request.Scheme)
+                : null);
 
             return Ok(result);
         }
@@ -167,7 +236,14 @@ namespace Chirp.API.Controllers
                 updated.Body,
                 updated.CreatedAt,
                 updated.ParentPostId,
-                updated.Replies?.Count ?? 0);
+                updated.Replies?.Count ?? 0,
+                updated.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = updated.Id },
+                      protocol: Request.Scheme)
+                : null);
 
             return Ok(result);
         }
@@ -238,10 +314,51 @@ namespace Chirp.API.Controllers
                 p.Body,
                 p.CreatedAt,
                 p.ParentPostId,
-                p.Replies?.Count ?? 0));
+                p.Replies?.Count ?? 0,
+                p.ImageId != null
+                ? Url.Action(
+                      action: nameof(GetPostImage),
+                      controller: "Posts",
+                      values: new { id = p.Id },
+                      protocol: Request.Scheme)
+                : null));
 
             return Ok(dto);
         }
+
+        /* ───────────────────────────────────────────────────
+            10. Upload – attach an image to a post - Use Postman to test this one.
+        */
+        // POST api/posts/{id}/image
+        [HttpPost("{id:guid}/image")]
+        [ApiExplorerSettings(IgnoreApi = true)]    // ← Swagger will skip this one
+        public async Task<IActionResult> UploadPostImage(
+        [FromRoute] Guid id,
+        [FromForm(Name = "file")] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            var post = await _posts.GetByIdAsync(id);
+            if (post is null) return NotFound();
+
+            byte[] data;
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            data = ms.ToArray();
+
+            var img = await _images.CreateAsync(data, file.FileName, file.ContentType);
+            await _posts.AssignImageAsync(id, img.Id);
+
+            var imageUrl = Url.Action(
+                action: nameof(GetPostImage),
+                controller: "Posts",
+                values: new { id },
+                protocol: Request.Scheme);
+
+            return Ok(new { imageUrl });
+        }
+
     }
 }
 

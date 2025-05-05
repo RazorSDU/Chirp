@@ -9,6 +9,7 @@ namespace Chirp.Database
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Post> Posts => Set<Post>();
+        public DbSet<Image> Images => Set<Image>();
 
         protected override void OnModelCreating(ModelBuilder b)
             => b.ApplyConfigurationsFromAssembly(typeof(ChirpContext).Assembly);
