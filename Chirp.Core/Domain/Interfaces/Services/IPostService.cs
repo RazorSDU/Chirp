@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chirp.Core.Domain.Entities;
+using Chirp.Core.Domain.Specifications;
 
 namespace Chirp.Core.Domain.Interfaces.Services
 {
@@ -22,6 +23,13 @@ namespace Chirp.Core.Domain.Interfaces.Services
         Task<Post> CreateAsync(Guid userId, string body, Guid? parentPostId = null);
 
         Task<IEnumerable<Post>> GetByUserAsync(string username, int page, int pageSize);
+        Task<Post> UpdateAsync(Guid id, string body);
+        Task DeleteAsync(Guid id);
+        Task DeleteThreadAsync(Guid id);
+        Task<IEnumerable<Post>> SearchAsync(
+            PostSearchCriteria criteria,
+            int page,
+            int pageSize);
     }
 }
 

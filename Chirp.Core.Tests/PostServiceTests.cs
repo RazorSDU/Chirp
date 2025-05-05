@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Repositories;
+using Chirp.Core.Domain.Specifications;
 using Chirp.Core.Services;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 

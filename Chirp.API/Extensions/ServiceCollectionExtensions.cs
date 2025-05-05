@@ -21,7 +21,7 @@ namespace Chirp.API.Extensions
             services.AddAutoMapper(typeof(PostProfile).Assembly);
 
             // repositories
-            services.AddScoped<IUserRepository, UserRepository>();   //  ←  keep this
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPostRepository, PostRepository>();
 
             // domain services

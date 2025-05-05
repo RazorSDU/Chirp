@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Chirp.API.DTOs.Post
 {
-    class CreatePostDto
+    public class CreatePostDto
     {
+        public Guid UserId { get; set; }
+        public string Body { get; set; } = string.Empty;
     }
 }
