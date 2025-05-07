@@ -1,6 +1,7 @@
 ﻿using Chirp.API.DTOs.Comment;
 using Chirp.API.DTOs.Post;
 using Chirp.Core.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.API.Controllers
@@ -48,6 +49,7 @@ namespace Chirp.API.Controllers
            1. Add – a comment to a post                              */
 
         // POST api/comments
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddComment(
             [FromBody] CreateCommentDto dto)

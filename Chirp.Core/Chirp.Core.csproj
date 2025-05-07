@@ -10,4 +10,8 @@
     <Folder Include="Domain\ValueObjects\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.9.0" />
+  </ItemGroup>
+
 </Project>
