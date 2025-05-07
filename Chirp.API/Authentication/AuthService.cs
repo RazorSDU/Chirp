@@ -58,15 +58,27 @@ public sealed class AuthService : IAuthService
             };
 
             var newUser = await _userService.GetUserForAuthAsync(loginDto.Username);
+            if (newUser == null)
+                throw new Exception("User is null after registration. Debug: " + loginDto.Username);
 
-            var token = GenerateJwtToken(newUser);
+            string token;
 
+            try
+            {
+                token = GenerateJwtToken(newUser);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during token generation" + ex);
+                throw;
+            }
             return new AuthResponseDto
             {
                 Token = token,
                 Username = newUser.Username,
                 Expires = DateTime.UtcNow.AddHours(24)
             };
+
         }
         catch (Exception)
         {
@@ -89,14 +101,22 @@ public sealed class AuthService : IAuthService
             throw new Exception("Invalid credentials");
         }
 
-        var token = GenerateJwtToken(user);
-
-        return new AuthResponseDto
+        try
         {
-            Token = token,
-            Username = user.Username,
-            Expires = DateTime.UtcNow.AddHours(24)
-        };
+            var token = GenerateJwtToken(user);
+            return new AuthResponseDto
+            {
+                Token = token,
+                Username = user.Username,
+                Expires = DateTime.UtcNow.AddHours(24)
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception during token generation" + ex);
+            throw;
+        }
+
     }
 
     private string GenerateJwtToken(User user)

@@ -32,7 +32,7 @@ public class UserService : IUserService
         return userDtos;
     }
 
-    public async Task<UserDto> GetUserByIdAsync(Guid userId)
+    public async Task<UserDto?> GetUserByIdAsync(Guid userId)
     {
         var user = await _userRepository.GetUserFromDatabaseByIdAsync(userId);
         var userDto = new UserDto()
@@ -45,7 +45,7 @@ public class UserService : IUserService
     }
 
 
-    public async Task<UserDto> GetUserByUsernameAsync(string username)
+    public async Task<UserDto?> GetUserByUsernameAsync(string username)
     {
         var user = await _userRepository.GetUserFromDatabaseByUsernameAsync(username);
         if (user == null)
@@ -60,7 +60,7 @@ public class UserService : IUserService
         return userDto;
     }
 
-    public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+    public async Task<UserDto?> CreateUserAsync(CreateUserDto createUserDto)
     {
         User newUser = new User()
         {
@@ -90,9 +90,9 @@ public class UserService : IUserService
         await _userRepository.DeleteUserFromDatabaseAsync(userId);
     }
 
-    public async Task<User> GetUserForAuthAsync(string username)
+    public async Task<User?> GetUserForAuthAsync(string userName)
     {
-        return await _userRepository.GetUserFromDatabaseByUsernameAsync(username);
+        return await _userRepository.GetUserFromDatabaseByUsernameAsync(userName);
     }
 
 }

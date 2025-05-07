@@ -1,4 +1,4 @@
-/*using Chirp.API.Authentication;
+using Chirp.API.Authentication;
 using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Services;
 using Chirp.Core.DTOs;
@@ -6,26 +6,51 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
-namespace Chirp.Tests.Backend.Core.Mocks;
+namespace Chirp.Tests.Backend.Mocks;
 
 
     public class MockUserService : IUserService
     {
-        public User? ExistingUser;
-        public User? LoginUser;
+        private readonly Dictionary<string, User> _users = new();
         public string? CreatedUserPassword;
 
-        public Task<UserDto> GetUserByUsernameAsync(string username)
-            => Task.FromResult(ExistingUser);
-
-        public Task<UserDto> CreateUserAsync(CreateUserDto dto)
+        public Task<UserDto?> GetUserByUsernameAsync(string username)
         {
-            CreatedUserPassword = dto.Password;
-            return Task.CompletedTask;
+            if (_users.TryGetValue(username, out var user))
+            {
+                return Task.FromResult<UserDto?>(new UserDto { Id = user.Id, Username = user.Username });
+            }
+
+            return Task.FromResult<UserDto?>(null);
+        }
+
+
+
+        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+        {
+            CreatedUserPassword = createUserDto.Password;
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = createUserDto.Username,
+                PasswordHash = createUserDto.Password
+            };
+            _users[user.Username] = user;
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+
         }
 
         public Task<User?> GetUserForAuthAsync(string username)
-            => Task.FromResult(LoginUser);
+        {
+            _users.TryGetValue(username, out var user);
+            return Task.FromResult(user);
+        }
+
         public Task<IEnumerable<UserDto>> GetAllUsersAsync() => throw new NotImplementedException();
         public Task<UserDto?> GetUserByIdAsync(Guid id) => throw new NotImplementedException();
         public Task UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto) => throw new NotImplementedException();
@@ -51,7 +76,7 @@ namespace Chirp.Tests.Backend.Core.Mocks;
             {
                 return key switch
                 {
-                    "Jwt:Key" => "supersecretkey12345678",
+                    "Jwt:Key" => "supersecretkey12345678_hide_it_away!",
                     "Jwt:Issuer" => "testissuer",
                     "Jwt:Audience" => "testaudience",
                     _ => null
@@ -75,5 +100,3 @@ namespace Chirp.Tests.Backend.Core.Mocks;
             throw new NotImplementedException();
         }
     }
-
-*/
