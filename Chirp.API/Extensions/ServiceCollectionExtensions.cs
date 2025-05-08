@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using Chirp.API.Authentication;
 using Chirp.API.Mapping;
+using Chirp.Core.Domain.Entities;
 using Chirp.Core.Domain.Interfaces.Repositories;
 using Chirp.Core.Domain.Interfaces.Services;
 using Chirp.Core.Services;
 using Chirp.Database;
 using Chirp.Database.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.API.Extensions
@@ -20,6 +23,9 @@ namespace Chirp.API.Extensions
             // AutoMapper – scan the assembly that contains PostProfile
             services.AddAutoMapper(typeof(PostProfile).Assembly);
 
+            // IPasswordHasher<User>
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();;
+
             // repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPostRepository, PostRepository>();
@@ -31,6 +37,7 @@ namespace Chirp.API.Extensions
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

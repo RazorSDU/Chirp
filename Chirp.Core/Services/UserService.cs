@@ -32,12 +32,35 @@ public class UserService : IUserService
         return userDtos;
     }
 
-    public async Task<IEnumerable<UserDto>> GetUsersByIdAsync(int userId)
+    public async Task<UserDto?> GetUserByIdAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetUserFromDatabaseByIdAsync(userId);
+        var userDto = new UserDto()
+        {
+            Id = user.Id,
+            Username = user.Username
+        };
+        
+        return userDto;
     }
 
-    public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+
+    public async Task<UserDto?> GetUserByUsernameAsync(string username)
+    {
+        var user = await _userRepository.GetUserFromDatabaseByUsernameAsync(username);
+        if (user == null)
+        {
+            return null;
+        }
+        var userDto = new UserDto()
+        {
+            Id = user.Id,
+            Username = user.Username
+        };
+        return userDto;
+    }
+
+    public async Task<UserDto?> CreateUserAsync(CreateUserDto createUserDto)
     {
         User newUser = new User()
         {
@@ -46,11 +69,30 @@ public class UserService : IUserService
             PasswordHash = createUserDto.Password,
         };
         await _userRepository.SaveUserToDatabaseAsync(newUser);
-        UserDto newUserDto = new UserDto();
+        UserDto newUserDto = new UserDto()
         {
-            Guid Id = newUser.Id;
-            string Username = newUser.Username;
-        }
+            Id = newUser.Id,
+            Username = newUser.Username
+        };
         return newUserDto;
     }
+
+    public async Task UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
+    {
+        var updatedUser = await _userRepository.GetUserFromDatabaseByIdAsync(userId);
+        updatedUser.Username = updateUserDto.Username;
+        updatedUser.PasswordHash = updateUserDto.Password;
+        await _userRepository.SaveUpdatedUserToDatabaseAsync(updatedUser);
+    }
+
+    public async Task DeleteUserAsync(Guid userId)
+    {
+        await _userRepository.DeleteUserFromDatabaseAsync(userId);
+    }
+
+    public async Task<User?> GetUserForAuthAsync(string userName)
+    {
+        return await _userRepository.GetUserFromDatabaseByUsernameAsync(userName);
+    }
+
 }

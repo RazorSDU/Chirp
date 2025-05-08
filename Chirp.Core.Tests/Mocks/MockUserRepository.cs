@@ -21,7 +21,12 @@ public class MockUserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public async Task<User> GetUserFromDatabaseByIdAsync(int userId)
+    public async Task<User> GetUserFromDatabaseByIdAsync(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<User> GetUserFromDatabaseByUsernameAsync(string username)
     {
         throw new NotImplementedException();
     }

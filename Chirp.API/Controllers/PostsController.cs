@@ -1,7 +1,9 @@
-﻿using Chirp.Core.Domain.Interfaces.Services;
+﻿using System.Security.Claims;
+using Chirp.Core.Domain.Interfaces.Services;
 using Chirp.API.DTOs.Post;
 using Microsoft.AspNetCore.Mvc;
 using Chirp.Core.Domain.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Chirp.API.Controllers
@@ -190,6 +192,7 @@ namespace Chirp.API.Controllers
           5. Create – a new post                                   */
 
         // POST api/posts
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePost(
             [FromBody] CreatePostDto dto)
@@ -217,15 +220,26 @@ namespace Chirp.API.Controllers
            6. Update – edit an existing post                        */
 
         // PUT api/posts/{id}
+        [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdatePost(
             Guid id,
             [FromBody] UpdatePostDto dto)
         {
+
+
             // ensure post exists
-            var existing = await _posts.GetByIdAsync(id);
-            if (existing is null)
+            var existingPost = await _posts.GetByIdAsync(id);
+            if (existingPost is null)
                 return NotFound();
+
+            // ensure user owns post
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(loggedInUserId, out var userId) || existingPost.UserId != userId)
+            {
+                return Forbid("You can only perform this action on your own posts.");
+            }
 
             // perform update
             var updated = await _posts.UpdateAsync(id, dto.Body);
@@ -252,13 +266,22 @@ namespace Chirp.API.Controllers
            7. Delete – remove a post                                */
 
         // DELETE api/posts/{id}
+        [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeletePost(Guid id)
         {
             // ensure post exists
-            var existing = await _posts.GetByIdAsync(id);
-            if (existing is null)
+            var existingPost = await _posts.GetByIdAsync(id);
+            if (existingPost is null)
                 return NotFound();
+
+            // ensure user owns post
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(loggedInUserId, out var userId) || existingPost.UserId != userId)
+            {
+                return Forbid("You can only perform this action on your own posts.");
+            }
 
             // delete and return 204
             await _posts.DeleteAsync(id);
@@ -270,6 +293,7 @@ namespace Chirp.API.Controllers
         */
 
         // DELETE api/posts/{id}/thread
+        [Authorize]
         [HttpDelete("{id:guid}/thread")]
         public async Task<IActionResult> DeleteThread(Guid id)
         {
@@ -287,6 +311,7 @@ namespace Chirp.API.Controllers
         */
 
         // GET api/posts/search
+
         [HttpGet("search")]
         public async Task<IActionResult> Search(
             [FromQuery] string? body,
@@ -330,6 +355,7 @@ namespace Chirp.API.Controllers
             10. Upload – attach an image to a post - Use Postman to test this one.
         */
         // POST api/posts/{id}/image
+        [Authorize]
         [HttpPost("{id:guid}/image")]
         [ApiExplorerSettings(IgnoreApi = true)]    // ← Swagger will skip this one
         public async Task<IActionResult> UploadPostImage(

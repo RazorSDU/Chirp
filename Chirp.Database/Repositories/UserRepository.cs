@@ -27,12 +27,34 @@ public class UserRepository : IUserRepository
 
     public async Task DeleteUserFromDatabaseAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
     }
 
-    public async Task<User> GetUserFromDatabaseByIdAsync(int userId)
+    public async Task<User> GetUserFromDatabaseByIdAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+        catch
+        {
+            throw new Exception("User not found");
+        }
+
+    }
+
+    public async Task<User> GetUserFromDatabaseByUsernameAsync(string username)
+    {
+        return await _context.Users
+            .SingleOrDefaultAsync(u => u.Username == username);
     }
 
     public async Task<IEnumerable<User>> GetAllUsersFromDatabaseAsync()

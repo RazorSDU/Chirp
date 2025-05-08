@@ -1,11 +1,13 @@
+using System.Security.Claims;
 using Chirp.Core.Domain.Interfaces.Services;
 using Chirp.Core.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("Chirp/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -22,17 +24,50 @@ namespace Chirp.API.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetUser(int id)
+        [HttpGet("profile/{userId:guid}")]
+        public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
         {
-            throw new NotImplementedException();
+            var user = await _userService.GetUserByIdAsync(userId);
+            return Ok(user);
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
+        internal async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
         {
             var user = await _userService.CreateUserAsync(createUserDto);
-            return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserById), new { Id = user.Id }, user);
+        }
+
+        // PUT: api/users/{username}
+        [Authorize]
+        [HttpPut("profile/{userId:guid}/update")]
+        public async Task<IActionResult> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
+        {
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(loggedInUserId, out var id) || userId != id)
+            {
+                return Forbid("You can only perform this action on your own account.");
+            }
+
+            await _userService.UpdateUserAsync(userId, updateUserDto);
+            return NoContent();
+        }
+
+        // DELETE: api/users/{username}
+        [Authorize]
+        [HttpDelete("profile/{userId:guid}/delete")]
+        public async Task<IActionResult> DeleteUser(Guid userId)
+        {
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(loggedInUserId, out var id) || userId != id)
+            {
+                return Forbid("You can only perform this action on your own account.");
+            }
+
+            await _userService.DeleteUserAsync(userId);
+            return NoContent();
         }
     }
 }
