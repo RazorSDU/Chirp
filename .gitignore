@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /.idea
+/Chirp.Database/Migrations
