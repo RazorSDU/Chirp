@@ -51,8 +51,23 @@ namespace Chirp.Tests.Backend.Mocks;
             return Task.FromResult(user);
         }
 
-        public Task<IEnumerable<UserDto>> GetAllUsersAsync() => throw new NotImplementedException();
-        public Task<UserDto?> GetUserByIdAsync(Guid id) => throw new NotImplementedException();
+        public Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            return Task.FromResult<IEnumerable<UserDto>>(_users.Values.Select(u => new UserDto { Id = u.Id, Username = u.Username }));
+        }
+
+        public async Task<UserDto?> GetUserByIdAsync(Guid userId)
+        {
+            var user = _users.Values.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+            var userDto = new UserDto { Id = user.Id, Username = user.Username };
+            return userDto;
+
+        }
         public Task UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto) => throw new NotImplementedException();
         public Task DeleteUserAsync(Guid userId) => throw new NotImplementedException();
     }

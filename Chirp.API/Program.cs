@@ -103,11 +103,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ── database migrate + seed ───────────────────────────────
-/*using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ChirpContext>();
     await db.Database.MigrateAsync();
     await Seeder.SeedAsync(db);
-}*/
+}
 
 app.Run();
