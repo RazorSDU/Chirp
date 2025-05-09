@@ -2,8 +2,8 @@ import React from "react";
 import { useState } from 'react';
 
 export default function LoginForm() {
-    const [username, setUsername] = useState('Username');
-    const [password, setPassword] = useState('Password');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     function handleUsernameChange(uname) {
         setUsername(uname.target.value);
