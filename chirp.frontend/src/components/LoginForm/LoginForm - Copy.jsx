@@ -13,10 +13,11 @@ export default function LoginForm() {
         setPassword(pword.target.value);
     }
 
-    function handleSubmit() {
+    const handleSubmit = (event) => {
+        event.preventDefault();
         console.log({ username });
         console.log({ password });
-    }
+    };
 
     return (
         <>
