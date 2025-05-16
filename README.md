@@ -1,7 +1,7 @@
 # Chirp — Twitter-style microblogging clone  
 > A full-stack demo that showcases clean architecture, threaded posts and image uploads.
 
-## 🛠 Tech Stack & Skills Demonstrated
+## 🛠 Tech Stack & Skills Demonstrated - By Johan Hoppe Rauer
 | Area | Stack / Library | Highlights shown in this project |
 |------|-----------------|-----------------------------------|
 | Front-end | React 18, Vite, Tailwind CSS | Component isolation, router-first SPA, custom hooks |
